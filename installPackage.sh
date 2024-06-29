@@ -1,3 +1,5 @@
 #!/bin/bash
 
-cpanm DBIx::Class
+cpanm Log::Any
+cpanm Test::More
+cpanm IPC::Run

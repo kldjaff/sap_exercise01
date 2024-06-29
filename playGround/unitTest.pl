@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
- 
+
 # Function to add two numbers
 sub add_numbers {
     my ($num1, $num2) = @_;

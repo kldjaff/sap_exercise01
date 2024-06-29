@@ -1,66 +1,59 @@
 use strict;
 use warnings;
 
-use DBIx::Class qw( fetchall );
+use DBI;
 
-package DBAccessLayer;
+package DAL;
 
 sub new {
     my $class = shift;
     my $self = {};
-    $self->{connection} = undef;
 
-    my ($db_name, $db_user, $db_password, $db_host, $db_port) = @_;
+    # Database connection details
+    $self->{db_name}   = 'exerise';
+    $self->{db_user}   = 'C5383753';
+    $self->{db_password} = '';
+    $self->{db_host}   = 'localhost';  # Adjust if using a different host
+    $self->{db_port}   = 5432;  # Adjust if using a different port (default for Postgres)
 
-    eval {
-        $self->{connection} = DBIx::Class->connect(
-            driver   => 'Pg',
-            db_name  => $db_name,
-            user     => $db_user,
-            password => $db_password,
-            host     => $db_host,
-            port     => $db_port,
-        );
-    };
+    # Connect to the database
+    $self->{dbh} = DBI->connect(
+        "dbi:Pg:dbname=$self->{db_name};host=$self->{db_host};port=$self->{db_port}",
+        $self->{db_user},
+        $self->{db_password},
+    ) or die "Could not connect to database: $DBI::errstr";
 
-    if (!$@) {
-        return bless $self, $class;
-    } else {
-        warn "Error connecting to database: $@";
-        return undef;
-    }
+    bless $self, $class;
 }
 
 sub execute_query {
-    my ($self, $query) = @_;
+    my ($self, $query, @params) = @_;
 
-    unless ($self->{connection}) {
-        return [];
+    # Prepare the statement
+    my $sth = $self->{dbh}->prepare($query) or die "Could not prepare statement: $DBI::errstr";
+
+    # Bind parameters if provided
+    if (@params) {
+        $sth->bind_param(@params);
     }
 
-    my $sth;
-    my @results;
+    # Execute the query
+    $sth->execute() or die "Could not execute query: $DBI::errstr";
 
-    eval {
-        $sth = $self->{connection}->prepare($query);
-        $sth->execute();
-        @results = $sth->fetchall_arrayref({});
-    };
+    # Fetch results (adjust based on your needs)
+    my @results = $sth->fetchall_arrayref({});
 
-    if (!$@) {
-        return [@results];
-    } else {
-        warn "Error executing query: $@";
-        return [];
-    }
+    # Close the statement
+    $sth->finish();
+
+    return @results;
 }
 
 sub close_connection {
     my ($self) = @_;
 
-    if ($self->{connection}) {
-        $self->{connection}->disconnect();
-    }
+    # Close database connection
+    $self->{dbh}->disconnect() if $self->{dbh};
 }
 
 1;  # Make the package available
