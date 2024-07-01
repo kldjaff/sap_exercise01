@@ -25,7 +25,7 @@ my $dal = DAL->new({
 # Simple test query (replace with your own query for testing)
 my $query = "SELECT 1+1 AS result";
 
-$log->info("Executing query: {}", $query);  # Use placeholders for variables
+$log->info("Executing query: ", $query);  # Use placeholders for variables
 
 subtest 'execute_query() test' => sub {
     my $json_data = $dal->execute_query($query);
@@ -48,6 +48,26 @@ subtest 'execute_query() test' => sub {
 
     is($json_data, $expected_pretty || $expected_plain, 'Correct JSON data returned');
 };
+
+subtest 'execute_non_query() for CREATE TABLE' => sub {
+    my $create_table_query = <<'SQL';
+CREATE TABLE IF NOT EXISTS public.tmp_users
+(
+    id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+    username character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    bio text COLLATE pg_catalog."default",
+    CONSTRAINT tmp_users_pkey PRIMARY KEY (id)
+)
+SQL
+
+    my $rows_affected = $dal->execute_non_query($create_table_query);
+
+    $log->debug("Rows affected: ", $rows_affected);
+
+    ok($rows_affected >= 0, 'Correct number of rows affected');
+};
+
+
 # Close the connection
 $dal->close_connection();
 

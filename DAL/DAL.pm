@@ -55,6 +55,26 @@ sub execute_query {
     return $json;
 }
 
+sub execute_non_query {
+    my ($self, $query, @params) = @_;
+
+    # Prepare the statement
+    my $sth = $self->{dbh}->prepare($query) or die "Could not prepare statement: $DBI::errstr";
+
+    # Bind parameters if provided
+    if (@params) {
+        $sth->bind_param(@params);
+    }
+
+    # Execute the query
+    my $rows_affected = $sth->execute() or die "Could not execute query: $DBI::errstr";
+
+    # Close the statement
+    $sth->finish();
+
+    return $rows_affected;
+}
+
 sub close_connection {
     my ($self) = @_;
 
