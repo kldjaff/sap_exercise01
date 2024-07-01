@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-
+use JSON;
 use DBI;
 
 package DAL;
@@ -41,13 +41,18 @@ sub execute_query {
     # Execute the query
     $sth->execute() or die "Could not execute query: $DBI::errstr";
 
-    # Fetch results (adjust based on your needs)
-    my @results = $sth->fetchall_arrayref({});
+    # Fetch all rows and store them in an array
+    my @rows;
+    while (my $row = $sth->fetchrow_hashref) {
+        push @rows, $row;
+    }
+
+    my $json = JSON->new->pretty->encode(\@rows);
 
     # Close the statement
     $sth->finish();
 
-    return @results;
+    return $json;
 }
 
 sub close_connection {
@@ -57,4 +62,4 @@ sub close_connection {
     $self->{dbh}->disconnect() if $self->{dbh};
 }
 
-1;  # Make the package available
+1;  # Make the package available2

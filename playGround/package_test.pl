@@ -28,6 +28,8 @@ while (my $row = $sth->fetchrow_hashref) {
     push @rows, $row;
 }
 
+print "All data are: @rows \n";
+
 # Convert the array of rows to JSON
 my $json = JSON->new->pretty->encode(\@rows);
 

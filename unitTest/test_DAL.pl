@@ -3,6 +3,9 @@ use warnings;
 use Test::More;
 use lib '/Users/C5383753/github/github.tools.sap/exercise/DAL/';
 use DAL;
+use Mojo::Log;
+
+my $log = Mojo::Log->new(level => 'debug');  # Adjust level as needed
 
 # Test database credentials (replace with your actual values)
 my $db_name = 'exercise';
@@ -20,10 +23,34 @@ my $dal = DAL->new({
 });
 
 # Simple test query (replace with your own query for testing)
-my $query = "SELECT 'AAA'AS result";
+my $query = "SELECT 1+1 AS result";
 
-my @results = $dal->execute_query($query);
+$log->info("Executing query: {}", $query);  # Use placeholders for variables
 
-print $results[0];
+subtest 'execute_query() test' => sub {
+    my $json_data = $dal->execute_query($query);
+    # Expected pretty-printed JSON
+    my $expected_pretty = JSON->new->pretty->encode(decode_json('[{"result":2}]'));
 
+    # Expected plain JSON
+    my $expected_plain = '[{"result":2}]';
+
+    $log->debug(
+        "Expected JSON (pretty): ?",
+        $expected_pretty
+    );
+    $log->debug(
+        "Expected JSON (plain): ?",
+        $expected_plain
+    );
+
+    # Test that the output matches either the pretty-printed or plain JSON
+
+    is($json_data, $expected_pretty || $expected_plain, 'Correct JSON data returned');
+};
+# Close the connection
 $dal->close_connection();
+
+done_testing();
+
+$log->info("Tests are completed \n");
