@@ -6,15 +6,16 @@ use DBI;
 package DAL;
 
 sub new {
-    my $class = shift;
-    my $self = {};
-
-    # Database connection details
-    $self->{db_name}   = 'exerise';
-    $self->{db_user}   = 'C5383753';
-    $self->{db_password} = '';
-    $self->{db_host}   = 'localhost';  # Adjust if using a different host
-    $self->{db_port}   = 5432;  # Adjust if using a different port (default for Postgres)
+    my ($class, $args) = @_; # since the values will be  
+                             # passed dynamically 
+    my $self = {
+        # Database connection details
+        db_name   => $args->{db_name} || 'exercise',
+        db_user   => $args->{db_user} || 'C5383753',
+        db_password => $args->{db_password} || '',
+        db_host   => $args->{db_host} || 'localhost',  # Adjust if using a different host
+        db_port   => $args->{db_port} || 5432  # Adjust if using a different port (default for Postgres)
+    };
 
     # Connect to the database
     $self->{dbh} = DBI->connect(
@@ -23,7 +24,7 @@ sub new {
         $self->{db_password},
     ) or die "Could not connect to database: $DBI::errstr";
 
-    bless $self, $class;
+    return bless $self, $class;
 }
 
 sub execute_query {

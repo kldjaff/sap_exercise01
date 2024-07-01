@@ -75,7 +75,7 @@ $ cpanm DBD::Pg
 But this driver_xst.h is in the folder `DBI-1.643`. Somehow, while install the DBI package the related .h files couldn't be installed.
   - Then you have to enter the folder `DBD-Pg-3.18.0`, you can't follow the `README.md` to install properly. You have to make some changes in the make file.
   ```shell
-  $ perl Makefile.PL      # This will help to generate the Makefile, You are able to make this step success.
+  $ perl Makefile.PL      # This will help to generate the makefile, You able to make this step success.
   ```
   - Then you will see a `Makefile` generated, Then you need to change this file, because you have to add the -I{The full path of `DBI-1.643`} in each of the `-I` lines.
   - Then you can run `make` and `make install` to finish the installation. 
