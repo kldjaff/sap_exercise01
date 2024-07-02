@@ -1,9 +1,9 @@
+package DAL;
+
 use strict;
 use warnings;
 use JSON;
 use DBI;
-
-package DAL;
 
 sub new {
     my ($class, $args) = @_; # since the values will be  
